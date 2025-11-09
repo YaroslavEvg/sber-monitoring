@@ -17,7 +17,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover - защитный бло
 from .types import HttpRouteConfig
 
 
-@dataclass(slots=True)
+@dataclass
 class MonitoringConfig:
     routes: List[HttpRouteConfig]
 

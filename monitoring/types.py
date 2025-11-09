@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional
 
 
-@dataclass(slots=True)
+@dataclass
 class FileUploadConfig:
     """Параметры отправки файла в HTTP-запросе."""
 
@@ -18,7 +18,7 @@ class FileUploadConfig:
         return Path(self.path).expanduser().resolve()
 
 
-@dataclass(slots=True)
+@dataclass
 class BasicAuthConfig:
     """Пара логина/пароля для базовой авторизации."""
 
@@ -26,7 +26,7 @@ class BasicAuthConfig:
     password: str
 
 
-@dataclass(slots=True)
+@dataclass
 class HttpRouteConfig:
     """Конфигурация одного HTTP-монитора."""
 
