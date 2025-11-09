@@ -15,7 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
 import init
 from monitoring.config import MonitoringConfig, load_config
 from monitoring.persistence import ResultWriter
-from threads.__init__ import build_monitors
+from threads.factory import build_monitors
 
 
 def parse_args() -> argparse.Namespace:
