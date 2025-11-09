@@ -19,6 +19,14 @@ class FileUploadConfig:
 
 
 @dataclass(slots=True)
+class BasicAuthConfig:
+    """Пара логина/пароля для базовой авторизации."""
+
+    username: str
+    password: str
+
+
+@dataclass(slots=True)
 class HttpRouteConfig:
     """Конфигурация одного HTTP-монитора."""
 
@@ -37,6 +45,7 @@ class HttpRouteConfig:
     enabled: bool = True
     body_max_chars: int = 2048
     file_upload: Optional[FileUploadConfig] = None
+    basic_auth: Optional[BasicAuthConfig] = None
     tags: List[str] = field(default_factory=list)
     monitor_type: str = "http"
 
@@ -44,6 +53,8 @@ class HttpRouteConfig:
     def from_dict(cls, raw: Mapping[str, Any]) -> "HttpRouteConfig":
         file_config = raw.get("file") or raw.get("file_upload")
         file_upload = FileUploadConfig(**file_config) if file_config else None
+        auth_config = raw.get("basic_auth") or raw.get("auth")
+        basic_auth = BasicAuthConfig(**auth_config) if auth_config else None
         interval = max(float(raw.get("interval", 60)), 1.0)
         timeout = max(float(raw.get("timeout", 10)), 1.0)
         body_limit = int(raw.get("max_response_chars", raw.get("body_max_chars", 2048)))
@@ -64,6 +75,7 @@ class HttpRouteConfig:
             enabled=raw.get("enabled", True),
             body_max_chars=body_limit,
             file_upload=file_upload,
+            basic_auth=basic_auth,
             tags=list(raw.get("tags", [])),
             monitor_type=raw.get("type", "http").lower(),
         )

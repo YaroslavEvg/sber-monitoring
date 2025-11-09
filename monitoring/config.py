@@ -6,7 +6,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List
 
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError as exc:  # pragma: no cover - защитный блок
+    raise RuntimeError(
+        "Библиотека PyYAML не установлена. Выполните `pip install -r requirements.txt` или "
+        "`pip install PyYAML` и повторите запуск."
+    ) from exc
 
 from .types import HttpRouteConfig
 

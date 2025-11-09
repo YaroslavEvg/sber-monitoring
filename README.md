@@ -38,6 +38,7 @@ Python-конструктор для описания HTTP-маршрутов м
 | `json` | ✖ | JSON-тело запроса. Если поле задано, библиотека `requests` отправит payload с `Content-Type: application/json`. |
 | `file.path`, `file.field_name`, `file.content_type` | ✖ | Настройки отправки локального файла в multipart/form-data. |
 | `max_response_chars` | ✖ | Сколько символов ответа сохранять для анализа. |
+| `basic_auth.username`, `basic_auth.password` | ✖ | Пара логин/пароль для HTTP Basic Auth (заголовок `Authorization`). |
 | `enabled` | ✖ | Быстрое отключение маршрута без удаления. |
 | `tags` | ✖ | Любые теги (строки) для последующей обработки в Zabbix. |
 
@@ -51,7 +52,14 @@ json:
     - two
 ```
 
-или указать путь к файлу/шаблону, а Python корректно сериализует структуру в JSON.
+или указать путь к файлу/шаблону, а Python корректно сериализует структуру в JSON.  
+Для защиты по Basic Auth добавьте:
+
+```yaml
+basic_auth:
+  username: test-user
+  password: test-pass
+```
 
 ### Структура файла результатов
 

@@ -136,3 +136,17 @@ routes:
       - patch
       - partial-update
     description: "PATCH с JSON-телом."
+
+  - name: httpbin-basic-auth
+    type: http
+    url: https://httpbin.org/basic-auth/test-user/test-pass
+    method: GET
+    interval: 180
+    timeout: 10
+    basic_auth:
+      username: test-user
+      password: test-pass
+    tags:
+      - basic-auth
+      - protected
+    description: "GET с базовой авторизацией (логин test-user / пароль test-pass)."

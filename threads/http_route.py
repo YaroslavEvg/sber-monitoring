@@ -8,6 +8,7 @@ from threading import Event
 from typing import Any, Dict, Optional
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 from monitoring.persistence import ResultWriter
 from monitoring.types import HttpRouteConfig
@@ -52,6 +53,7 @@ class HttpRouteMonitor(BaseMonitorThread):
                     data=self.config.data,
                     json=self.config.json_body,
                     files=files,
+                    auth=self._basic_auth(),
                     timeout=self.config.timeout,
                     allow_redirects=self.config.allow_redirects,
                     verify=self.config.verify_ssl,
@@ -129,3 +131,9 @@ class HttpRouteMonitor(BaseMonitorThread):
         if not value:
             return None
         return value
+
+    def _basic_auth(self) -> Optional[HTTPBasicAuth]:
+        if not self.config.basic_auth:
+            return None
+        creds = self.config.basic_auth
+        return HTTPBasicAuth(creds.username, creds.password)
