@@ -22,13 +22,15 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="HTTP route monitoring for Zabbix collectors")
     parser.add_argument(
         "--config",
-        default="config/routes.yaml",
-        help="Path to YAML/JSON file with route definitions (default: config/routes.yaml)",
+        default="config/routes",
+        help="Path to a YAML/JSON file or directory with route definitions (default: config/routes)",
     )
     parser.add_argument(
+        "--results-path",
         "--results-file",
+        dest="results_path",
         default="monitoring_results.json",
-        help="Where to store the latest probe results for Zabbix",
+        help="Path to a JSON file or directory where probe results will be stored",
     )
     parser.add_argument(
         "--log-level",
@@ -81,7 +83,7 @@ def main() -> int:
         logging.warning("No enabled routes configured. Nothing to monitor.")
         return 0
 
-    writer = ResultWriter(args.results_file)
+    writer = ResultWriter(args.results_path)
     stop_event = Event()
 
     try:

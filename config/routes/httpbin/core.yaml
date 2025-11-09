@@ -1,0 +1,25 @@
+routes:
+  - name: httpbin-status
+    type: http
+    url: https://httpbin.org/status/200
+    method: GET
+    interval: 60
+    timeout: 5
+    tags:
+      - demo
+      - status
+    description: "Проверка health-эндпоинта (HTTP 200)."
+
+  - name: httpbin-options
+    type: http
+    url: https://httpbin.org/anything/options
+    method: OPTIONS
+    interval: 180
+    timeout: 6
+    headers:
+      Access-Control-Request-Method: POST
+      Access-Control-Request-Headers: X-Custom-Header
+    tags:
+      - options
+      - cors
+    description: "OPTIONS-запрос с CORS-заголовками."

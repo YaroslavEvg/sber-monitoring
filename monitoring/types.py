@@ -49,9 +49,10 @@ class HttpRouteConfig:
     basic_auth: Optional[BasicAuthConfig] = None
     tags: List[str] = field(default_factory=list)
     monitor_type: str = "http"
+    source_path: Optional[str] = None
 
     @classmethod
-    def from_dict(cls, raw: Mapping[str, Any]) -> "HttpRouteConfig":
+    def from_dict(cls, raw: Mapping[str, Any], source_path: Optional[str] = None) -> "HttpRouteConfig":
         file_config = raw.get("file") or raw.get("file_upload")
         file_upload = FileUploadConfig(**file_config) if file_config else None
         auth_config = raw.get("basic_auth") or raw.get("auth")
@@ -80,4 +81,5 @@ class HttpRouteConfig:
             basic_auth=basic_auth,
             tags=list(raw.get("tags", [])),
             monitor_type=raw.get("type", "http").lower(),
+            source_path=source_path,
         )

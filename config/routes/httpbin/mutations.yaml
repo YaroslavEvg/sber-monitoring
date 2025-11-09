@@ -1,0 +1,70 @@
+routes:
+  - name: httpbin-json
+    type: http
+    url: https://httpbin.org/anything/json
+    method: POST
+    interval: 90
+    timeout: 10
+    headers:
+      Content-Language: ru
+    json:
+      service: sber-monitoring
+      action: health-check
+      payload:
+        key: value
+        nested:
+          list:
+            - one
+            - two
+    tags:
+      - json
+      - post
+    description: "POST с JSON-телом."
+
+  - name: httpbin-put-form
+    type: http
+    url: https://httpbin.org/anything/form
+    method: PUT
+    interval: 75
+    timeout: 12
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+      X-Requested-With: monitoring-agent
+    data:
+      role: observer
+      env: staging
+    tags:
+      - put
+      - form
+    description: "PUT с form-urlencoded телом."
+
+  - name: httpbin-delete
+    type: http
+    url: https://httpbin.org/delete
+    method: DELETE
+    interval: 120
+    timeout: 8
+    params:
+      soft: "true"
+      source: agent
+    allow_redirects: false
+    tags:
+      - delete
+      - params
+    description: "DELETE с query-параметрами и отключёнными редиректами."
+
+  - name: httpbin-patch
+    type: http
+    url: https://httpbin.org/anything/patch
+    method: PATCH
+    interval: 150
+    timeout: 9
+    json:
+      operation: partial-update
+      fields:
+        status: active
+        region: ru-central
+    tags:
+      - patch
+      - partial-update
+    description: "PATCH с JSON-телом."

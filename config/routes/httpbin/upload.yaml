@@ -1,0 +1,17 @@
+routes:
+  - name: httpbin-upload
+    type: http
+    url: https://httpbin.org/post
+    method: POST
+    interval: 120
+    timeout: 15
+    headers:
+      X-Monitor-Origin: sber-monitoring
+    data:
+      sample: "true"
+    file:
+      path: files/sample_payload.txt
+      field_name: attachment
+      content_type: text/plain
+    max_response_chars: 1024
+    description: "Загрузка небольшого файла в multipart/form-data."

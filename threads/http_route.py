@@ -35,7 +35,7 @@ class HttpRouteMonitor(BaseMonitorThread):
 
     def run_once(self) -> None:
         payload = self._execute_request()
-        self.writer.write_result(self.config.name, payload)
+        self.writer.write_result(self.config, payload)
 
     def _execute_request(self) -> Dict[str, Any]:
         timestamp = datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()

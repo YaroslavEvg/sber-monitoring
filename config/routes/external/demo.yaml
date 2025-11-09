@@ -1,0 +1,26 @@
+routes:
+  - name: example-head
+    type: http
+    url: https://example.org/
+    method: HEAD
+    interval: 300
+    timeout: 5
+    body_max_chars: 256
+    tags:
+      - head
+      - example
+    description: "HEAD-запрос к стороннему домену."
+
+  - name: postman-echo-query
+    type: http
+    url: https://postman-echo.com/get
+    method: GET
+    interval: 65
+    timeout: 7
+    params:
+      id: "42"
+      source: sber-monitoring
+    tags:
+      - get
+      - other-domain
+    description: "GET-запрос с query-параметрами на другом домене."
