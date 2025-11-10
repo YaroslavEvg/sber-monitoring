@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 import time
 from pathlib import Path
@@ -16,6 +17,8 @@ import init
 from monitoring.config import MonitoringConfig, load_config
 from monitoring.persistence import ResultWriter
 from threads.factory import build_monitors
+
+DEFAULT_TZ = "Europe/Moscow"
 
 
 def parse_args() -> argparse.Namespace:
@@ -50,6 +53,18 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def configure_timezone(default_tz: str = DEFAULT_TZ) -> str:
+    """Настраивает часовой пояс: TZ из окружения или дефолт Europe/Moscow."""
+    tz_value = os.environ.get("TZ", default_tz)
+    os.environ["TZ"] = tz_value
+    if hasattr(time, "tzset"):
+        try:
+            time.tzset()
+        except Exception:  # noqa: BLE001
+            pass
+    return tz_value
+
+
 def _wait_for(monitors, stop_event: Event, one_shot: bool) -> None:
     try:
         while True:
@@ -69,6 +84,7 @@ def _wait_for(monitors, stop_event: Event, one_shot: bool) -> None:
 
 def main() -> int:
     args = parse_args()
+    configure_timezone()
     log_files = [args.log_file] if args.log_file else None
     init.init_logging(args.log_level, log_files=log_files)
 
