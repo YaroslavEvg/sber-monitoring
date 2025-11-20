@@ -71,4 +71,7 @@ def _load_routes_from_file(path: Path, source_label: str) -> List[HttpRouteConfi
     raw_config = _read_file(path)
     if "routes" not in raw_config:
         raise ValueError(f"Config file {path} must contain a 'routes' section")
-    return [HttpRouteConfig.from_dict(entry, source_path=source_label) for entry in raw_config["routes"]]
+    base_dir = path.parent
+    return [
+        HttpRouteConfig.from_dict(entry, source_path=source_label, base_dir=base_dir) for entry in raw_config["routes"]
+    ]

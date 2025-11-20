@@ -1,6 +1,7 @@
 """Dataclass-описания конфигурации мониторинга."""
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional
@@ -52,7 +53,9 @@ class HttpRouteConfig:
     source_path: Optional[str] = None
 
     @classmethod
-    def from_dict(cls, raw: Mapping[str, Any], source_path: Optional[str] = None) -> "HttpRouteConfig":
+    def from_dict(
+        cls, raw: Mapping[str, Any], source_path: Optional[str] = None, base_dir: Optional[Path] = None
+    ) -> "HttpRouteConfig":
         file_config = raw.get("file") or raw.get("file_upload")
         file_upload = FileUploadConfig(**file_config) if file_config else None
         auth_config = raw.get("basic_auth") or raw.get("auth")
@@ -60,6 +63,7 @@ class HttpRouteConfig:
         interval = max(float(raw.get("interval", 60)), 1.0)
         timeout = max(float(raw.get("timeout", 10)), 1.0)
         body_limit = int(raw.get("max_response_chars", raw.get("body_max_chars", 2048)))
+        json_payload = cls._resolve_json_payload(raw.get("json"), base_dir)
 
         return cls(
             name=raw["name"],
@@ -70,7 +74,7 @@ class HttpRouteConfig:
             headers=dict(raw.get("headers", {})),
             params=dict(raw.get("params", {})),
             data=raw.get("data") or raw.get("body"),
-            json_body=raw.get("json"),
+            json_body=json_payload,
             allow_redirects=raw.get("allow_redirects", True),
             verify_ssl=raw.get("verify_ssl", True),
             ca_bundle=raw.get("ca_bundle") or raw.get("ca_cert") or raw.get("verify_path"),
@@ -83,3 +87,32 @@ class HttpRouteConfig:
             monitor_type=raw.get("type", "http").lower(),
             source_path=source_path,
         )
+
+    @staticmethod
+    def _resolve_json_payload(payload: Any, base_dir: Optional[Path]) -> Any:
+        if not isinstance(payload, str):
+            return payload
+
+        raw_value = payload.strip()
+        if not raw_value:
+            return payload
+
+        candidates = []
+        path_obj = Path(raw_value)
+        if path_obj.is_absolute():
+            candidates.append(path_obj)
+        else:
+            candidates.append(path_obj)
+            if base_dir:
+                candidates.append((base_dir / raw_value).resolve())
+
+        for candidate in candidates:
+            file_path = candidate.expanduser()
+            if file_path.exists():
+                try:
+                    content = file_path.read_text(encoding="utf-8")
+                    return json.loads(content or "null")
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"Invalid JSON content in {file_path}: {exc}") from exc
+
+        return payload
