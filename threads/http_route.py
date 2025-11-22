@@ -1,6 +1,5 @@
 """Поток мониторинга HTTP-маршрута."""
 from __future__ import annotations
-
 import json
 from contextlib import ExitStack
 import time
@@ -132,14 +131,13 @@ class HttpRouteMonitor(BaseMonitorThread):
     def _inject_json_part(self, files: Dict[str, Any], payload: Any) -> Dict[str, Any]:
         files_copy = dict(files)
         field_name = self.config.multipart_json_field or "json"
-        filename = self.config.multipart_json_filename or f"{field_name}.json"
 
         if field_name in files_copy:
             self.logger.debug("Поле %s уже существует среди files и будет перезаписано JSON-частью.", field_name)
 
         encoded_json = self._encode_json_field(payload)
         files_copy[field_name] = (
-            filename,
+            None,
             encoded_json,
             "application/json",
         )

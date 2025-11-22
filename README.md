@@ -53,8 +53,7 @@ Python-конструктор для описания HTTP-маршрутов м
 | `basic_auth` | не задано | Добавьте блок `basic_auth`, если нужно. |
 | `ca_bundle` | не задано | Используйте для кастомных корневых сертификатов. |
 | `TZ` | `Europe/Moscow` | Можно переопределить переменной окружения `TZ`. |
-| `multipart_json_field` | `json` | Имя части multipart-формы для JSON при наличии файлов. |
-| `multipart_json_filename` | `<поле>.json` | Имя файла JSON-части (можно задать вручную). |
+| `multipart_json_field` | `json` | Имя части multipart-формы для JSON при наличии файлов (часть без filename). |
 | `json_query_param` | не задано | Если указать, JSON будет сериализован и добавлен в query-параметр. |
 
 Каждый элемент в `routes` задаёт один HTTP-монитор. Ниже перечислены основные поля:
@@ -71,7 +70,7 @@ Python-конструктор для описания HTTP-маршрутов м
 | `data` | ✖ | Тело запроса в обычном (form/urlencoded) виде. |
 | `json` | ✖ | JSON-тело запроса. Если поле задано, библиотека `requests` отправит payload с `Content-Type: application/json`. |
 | `file.path`, `file.field_name`, `file.content_type` | ✖ | Настройки отправки локального файла в multipart/form-data. |
-| `multipart_json_field` / `multipart_json_filename` | ✖ | Имя поля и файла для JSON-пейлоада внутри multipart (если требуется). |
+| `multipart_json_field` | ✖ | Имя поля для JSON-пейлоада внутри multipart (часть без filename, `Content-Type: application/json`). |
 | `json_query_param` | ✖ | Имя query-параметра, в который нужно сериализовать JSON вместо тела. |
 | `max_response_chars` | ✖ | Сколько символов ответа сохранять для анализа. |
 | `basic_auth.username`, `basic_auth.password` | ✖ | Пара логин/пароль для HTTP Basic Auth (заголовок `Authorization`). |
@@ -99,7 +98,7 @@ json: payloads/create-request.json
 
 Файл должен содержать корректный JSON.
 
-Если одновременно требуется отправить файл и JSON (multipart/form-data), укажите файл в секции `file`, а JSON — как обычно. Монитор автоматически добавит ещё одну часть `Content-Type: application/json` в multipart. Поле и имя файла можно переопределить:
+Если одновременно требуется отправить файл и JSON (multipart/form-data), укажите файл в секции `file`, а JSON — как обычно. Монитор соберёт multipart в формате, который работает с требуемым бэкендом: JSON передаётся отдельной частью `application/json` **без** `filename`, файл — обычной частью с именем файла. Это единственный поддерживаемый вариант загрузки файлов. Опция `multipart_json_filename` больше не используется: JSON отправляется без имени файла. При необходимости можно переименовать поле JSON через `multipart_json_field` (по умолчанию `json`):
 
 ```yaml
 file:
@@ -107,8 +106,18 @@ file:
   field_name: upload
   content_type: text/csv
 json: payloads/meta.json
-multipart_json_field: meta
-multipart_json_filename: meta-request.json
+multipart_json_field: meta  # опционально: имя JSON-поля внутри multipart
+```
+
+Эквивалентный вызов `requests`, который сформирует агент:
+
+```python
+json_payload = ...  # содержимое, указанное в блоке json
+with open("files/data.csv", "rb") as f:
+    files = {
+        "upload": ("data.csv", f, "text/csv"),
+        "meta": (None, json.dumps(json_payload), "application/json"),
+    }
 ```
 
 Отправка файла в multipart, где JSON передаётся в query-параметре, воспользуйтесь `json_query_param`. Агент сериализует JSON в строку, экранирует и добавит к URL (`?json=%7B...%7D`), а тело запроса останется multipart только с файлом:
